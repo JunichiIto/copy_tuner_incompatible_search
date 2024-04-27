@@ -9,12 +9,6 @@ module CopyTunerIncompatibleSearch
     class Result
       type result_type = :dynamic | :static | :lazy
 
-      @type: result_type
-
-      @key: String
-
-      @usages: Array[Usage]
-
       attr_reader type: result_type
 
       attr_reader key: String
@@ -37,14 +31,6 @@ module CopyTunerIncompatibleSearch
     end
 
     class Usage
-      @file: String
-
-      @line: String
-
-      @code: String
-
-      @lazy_key: String?
-
       attr_reader file: String
 
       attr_reader line: String
