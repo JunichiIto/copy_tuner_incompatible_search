@@ -16,7 +16,7 @@ module CopyTunerIncompatibleSearch
       results << search_lazy_usages
       results << search_dynamic_usages
       ignored_keys = search_ignored_keys
-      XlsxWriter.dump_to_xlsx(results, incompatible_keys, ignored_keys, output_path)
+      XlsxWriter.save_to(results, incompatible_keys, ignored_keys, output_path)
       puts 'Finish'
     end
 

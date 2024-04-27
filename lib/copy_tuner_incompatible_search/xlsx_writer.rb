@@ -2,8 +2,8 @@
 
 module CopyTunerIncompatibleSearch
   class XlsxWriter
-    def self.dump_to_xlsx(results, incompatible_keys, ignored_keys, output_path)
-      self.new(results, incompatible_keys, ignored_keys).dump_to_xlsx(output_path)
+    def self.save_to(results, incompatible_keys, ignored_keys, output_path)
+      self.new(results, incompatible_keys, ignored_keys).save_to(output_path)
     end
 
     def initialize(results, incompatible_keys, ignored_keys)
@@ -12,7 +12,7 @@ module CopyTunerIncompatibleSearch
       @ignored_keys = ignored_keys
     end
 
-    def dump_to_xlsx(output_path)
+    def save_to(output_path)
       Axlsx::Package.new do |p|
         p.workbook.add_worksheet(name: 'Data') do |sheet|
           style = sheet.styles.add_style(font_name: 'Courier New', sz: 14)
