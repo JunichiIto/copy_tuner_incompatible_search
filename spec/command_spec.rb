@@ -395,5 +395,36 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
         assert_xlsx_output(command, expected_matrix, 0)
       end
     end
+
+    context "when over 100 keys found" do
+      before do
+        keys = 1.upto(201).map { |i| "sample.hello_#{i}" }.join("\n")
+        allow(command).to receive(:detect_html_incompatible_keys).and_return(keys)
+        allow(command).to receive(:grep_lazy_keys).and_return("")
+        allow(command).to receive(:grep_dynamic_keys).and_return("")
+        allow(command).to receive(:grep_usage).and_return("")
+        allow(command).to receive(:ignored_keys_text).and_return("")
+      end
+
+      let(:expected_matrix) do
+        [
+          ["Type", "Key", "Ignored", "File", "Line", "Code"],
+        ]
+      end
+
+      it "shows progress" do
+        output_path = generate_output_path
+        expect {
+          command.run(output_path)
+        }.to change { File.exist?(output_path) }.from(false)
+        .and output(<<~OUTPUT).to_stdout
+          Start
+          Searching 201 keys
+          100 / 201
+          200 / 201
+          Finish
+        OUTPUT
+      end
+    end
   end
 end
