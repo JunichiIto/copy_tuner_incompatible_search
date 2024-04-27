@@ -30,6 +30,4 @@
 target :lib do
   check 'lib'
   signature 'sig'
-
-  library 'set'
 end
