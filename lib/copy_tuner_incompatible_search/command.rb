@@ -11,45 +11,12 @@ module CopyTunerIncompatibleSearch
 
     def run(output_path)
       puts 'Start'
-
-      stdout = detect_html_incompatible_keys
-      keys = stdout.lines(chomp: true).map do |line|
-        line.split('.', 2).last
-      end.uniq.sort
-      keys = Set[*keys]
-
-      results = []
-
-      # 完全一致する翻訳キー
-      puts "Searching #{keys.count} keys"
-      count = 0
-      keys.each do |key|
-        count += 1
-        puts "#{count} / #{keys.count}" if (count % 100).zero?
-
-        result = Result.new(:static, key)
-        usage = grep_usage(key).strip
-        unless usage.empty?
-          result.add_usage(usage)
-        end
-        results << result
-      end
-
-      # .で始まる翻訳キー
-      grep_result = grep_lazy_keys
-      result = Result.new(:lazy, '')
-      result.add_usage(grep_result)
-      results << result
-
-      # 変数を含む翻訳キー
-      grep_result = grep_dynamic_keys
-      result = Result.new(:dynamic, '')
-      result.add_usage(grep_result)
-      results << result
-
-      # Excelに出力
-      dump_to_xlsx(results, keys, output_path)
-
+      incompatible_keys = search_incompatible_keys
+      results = search_static_usages(incompatible_keys)
+      results << search_lazy_usages
+      results << search_dynamic_usages
+      ignored_keys = Set[*eval(ignored_keys_text)] # rubocop:disable Security/Eval
+      XlsxWriter.dump_to_xlsx(results, incompatible_keys, ignored_keys, output_path)
       puts 'Finish'
     end
 
@@ -101,6 +68,44 @@ module CopyTunerIncompatibleSearch
       end
     end
 
+    def search_incompatible_keys
+      stdout = detect_html_incompatible_keys
+      keys = stdout.lines(chomp: true).map do |line|
+        line.split('.', 2).last
+      end.uniq.sort
+      Set[*keys]
+    end
+
+    def search_static_usages(incompatible_keys)
+      puts "Searching #{incompatible_keys.count} keys"
+      count = 0
+      incompatible_keys.map do |key|
+        count += 1
+        puts "#{count} / #{incompatible_keys.count}" if (count % 100).zero?
+
+        result = Result.new(:static, key)
+        usage = grep_usage(key).strip
+        unless usage.empty?
+          result.add_usage(usage)
+        end
+        result
+      end
+    end
+
+    def search_lazy_usages
+      grep_result = grep_lazy_keys
+      result = Result.new(:lazy, '')
+      result.add_usage(grep_result)
+      result
+    end
+
+    def search_dynamic_usages
+      grep_result = grep_dynamic_keys
+      result = Result.new(:dynamic, '')
+      result.add_usage(grep_result)
+      result
+    end
+
     def detect_html_incompatible_keys
       `rails copy_tuner:detect_html_incompatible_keys`
     end
@@ -117,54 +122,8 @@ module CopyTunerIncompatibleSearch
       `git grep -n "#{Regexp.escape(key)}"`
     end
 
-    def ignored_keys
-      @ignored_keys ||= Set[*eval(ignored_keys_text)]
-    end
-
     def ignored_keys_text
       `rails r "p CopyTunerClient::configuration.ignored_keys"`
-    end
-
-    def dump_to_xlsx(results, keys, output_path)
-      Axlsx::Package.new do |p|
-        p.workbook.add_worksheet(name: 'Data') do |sheet|
-          monospace_style = sheet.styles.add_style(font_name: 'Courier New', sz: 14)
-          sheet.add_row %w[Type Key Ignored File Line Code], style: monospace_style
-          sheet.auto_filter = 'A1:F1'
-
-          # freeze pane
-          sheet.sheet_view.pane do |pane|
-            pane.top_left_cell = 'A2'
-            pane.state = :frozen_split
-            pane.y_split = 1
-            pane.x_split = 0
-            pane.active_pane = :bottom_right
-          end
-
-          results.each do |result|
-            added = false
-            result.usages.each do |usage|
-              key = if result.lazy?
-                      path = usage.file.sub(%r{^app/views/}, '').sub(/\..+$/, '').sub('/_', '/').gsub('/', '.')
-                      path + usage.lazy_key
-                    else
-                      result.key
-                    end
-              already_migrated = usage.file == 'config/initializers/copy_tuner.rb' || usage.code.include?("#{usage.lazy_key || result.key}_html")
-              next unless (!result.lazy? || keys.include?(key)) && !already_migrated
-
-              ignored = unless result.dynamic? then ignored_keys.include?(key) ? 'Y' : 'N' end
-              sheet.add_row [result.type, key, ignored.to_s, usage.file, usage.line, usage.code], style: monospace_style
-              added = true
-            end
-            if !added && result.static?
-              ignored = ignored_keys.include?(result.key) ? 'Y' : 'N'
-              sheet.add_row [result.type, result.key, ignored.to_s, '', '', ''], style: monospace_style
-            end
-          end
-        end
-        p.serialize(output_path)
-      end
     end
   end
 end
