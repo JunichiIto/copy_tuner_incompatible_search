@@ -96,9 +96,7 @@ module CopyTunerIncompatibleSearch
 
     def search_static_usages(incompatible_keys)
       puts "Searching #{incompatible_keys.count} keys"
-      count = 0
-      incompatible_keys.map do |key|
-        count += 1
+      incompatible_keys.map.with_index(1) do |key, count|
         puts "#{count} / #{incompatible_keys.count}" if (count % 100).zero?
 
         result = Result.new(:static, key)
