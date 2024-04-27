@@ -7,19 +7,21 @@ module CopyTunerIncompatibleSearch
     private
 
     class Result
-      @type: :dynamic | :static | :lazy
+      type result_type = :dynamic | :static | :lazy
+
+      @type: result_type
 
       @key: String
 
       @usages: Array[Usage]
 
-      attr_reader type: :dynamic | :static | :lazy
+      attr_reader type: result_type
 
       attr_reader key: String
 
       attr_reader usages: Array[Usage]
 
-      def initialize: (:dynamic | :static | :lazy type, String key) -> void
+      def initialize: (result_type type, String key) -> void
 
       def static?: () -> bool
 
