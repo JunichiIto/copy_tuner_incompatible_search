@@ -15,7 +15,7 @@ module CopyTunerIncompatibleSearch
       results = search_static_usages(incompatible_keys)
       results << search_lazy_usages
       results << search_dynamic_usages
-      ignored_keys = Set[*eval(ignored_keys_text)] # rubocop:disable Security/Eval
+      ignored_keys = search_ignored_keys
       XlsxWriter.dump_to_xlsx(results, incompatible_keys, ignored_keys, output_path)
       puts 'Finish'
     end
@@ -104,6 +104,10 @@ module CopyTunerIncompatibleSearch
       result = Result.new(:dynamic, '')
       result.add_usage(grep_result)
       result
+    end
+
+    def search_ignored_keys
+      Set[*eval(ignored_keys_text)] # rubocop:disable Security/Eval
     end
 
     def detect_html_incompatible_keys
