@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/copy_tuner_incompatible_search/command'
+require_relative '../lib/copy_tuner_incompatible_search'
 
 project_name = File.basename(Dir.pwd)
 timestamp = Time.now.strftime('%Y%m%d%H%M%S')
