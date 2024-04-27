@@ -8,7 +8,7 @@ module CopyTunerIncompatibleSearch
       self.new.run
     end
 
-    def main
+    def run
       puts "Start"
 
       stdout = `rails copy_tuner:detect_html_incompatible_keys`
