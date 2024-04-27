@@ -1,4 +1,4 @@
-![](https://github.com/JunichiIto/copy_tuner_incompatible_search/actions/workflows/main.yml/badge.svg)
+![](https://github.com/JunichiIto/copy_tuner_incompatible_search/actions/workflows/rspec.yml/badge.svg)
 
 # CopyTunerIncompatibleSearch
 
