@@ -5,14 +5,14 @@ require 'set'
 
 module CopyTunerIncompatibleSearch
   class Command
-    def self.run
-      self.new.run
+    def self.run(output_path)
+      self.new.run(output_path)
     end
 
-    def run
+    def run(output_path)
       puts "Start"
 
-      stdout = `rails copy_tuner:detect_html_incompatible_keys`
+      stdout = detect_html_incompatible_keys
       keys = stdout.lines(chomp: true).map do |line|
         line.split(".", 2).last
       end.uniq.sort
@@ -27,31 +27,26 @@ module CopyTunerIncompatibleSearch
         puts "#{count} / #{keys.count}" if count % 100 == 0
 
         results[key] ||= Result.new(:static, key)
-        result = `git grep -n "#{Regexp.escape(key)}"`.strip
+        result = grep_usage(key).strip
         unless result.empty?
           results[key].add_usage(result)
         end
       end
 
       # .で始まる翻訳キー
-      grep_result = `git grep -n -P "\\btt?[ \\(]['\\"]\\.\\w+"`
+      grep_result = grep_lazy_keys
       results['lazy'] = Result.new(:lazy, "")
       results['lazy'].add_usage(grep_result)
 
       # 変数を含む翻訳キー
-      grep_result = `git grep -n -P "\\btt?[ \\(]['\\"][\\w.-]*[#$]"`
+      grep_result = grep_dynamic_keys
       results['with vars'] = Result.new(:dynamic, "")
       results['with vars'].add_usage(grep_result)
 
       # Excelに出力
-      project_name = File.basename(Dir.pwd)
-      timestamp = Time.now.strftime("%Y%m%d%H%M%S")
-      output_path = "tmp/usages-#{project_name}-#{timestamp}.xlsx"
       dump_to_xlsx(results, keys, output_path)
 
       puts "Finish"
-      puts "open #{output_path}"
-      `open #{output_path}`
     end
 
     private
@@ -63,6 +58,10 @@ module CopyTunerIncompatibleSearch
         @type = type
         @key = key
         @usages = []
+      end
+
+      def static?
+        @type == :static
       end
 
       def lazy?
@@ -98,11 +97,28 @@ module CopyTunerIncompatibleSearch
       end
     end
 
+    def detect_html_incompatible_keys
+      `rails copy_tuner:detect_html_incompatible_keys`
+    end
+
+    def grep_lazy_keys
+      `git grep -n -P "\\btt?[ \\(]['\\"]\\.\\w+"`
+    end
+
+    def grep_dynamic_keys
+      `git grep -n -P "\\btt?[ \\(]['\\"][\\w.-]*[#$]"`
+    end
+
+    def grep_usage(key)
+      `git grep -n "#{Regexp.escape(key)}"`
+    end
+
     def ignored_keys
-      @ignored_keys ||= begin
-                          text = `rails r "p CopyTunerClient::configuration.ignored_keys"`
-                          Set[*eval(text)]
-                        end
+      @ignored_keys ||= Set[*eval(ignored_keys_text)]
+    end
+
+    def ignored_keys_text
+      `rails r "p CopyTunerClient::configuration.ignored_keys"`
     end
 
     def dump_to_xlsx(results, keys, output_path)
@@ -137,7 +153,7 @@ module CopyTunerIncompatibleSearch
                 added = true
               end
             end
-            if !added && !result.lazy?
+            if !added && result.static?
               ignored = ignored_keys.include?(result.key) ? "Y" : "N"
               sheet.add_row [result.type, result.key, ignored.to_s, "", "", ""], style: monospace_style
             end
