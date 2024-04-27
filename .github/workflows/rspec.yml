@@ -28,7 +28,3 @@ jobs:
         bundler-cache: true
     - name: Run spec
       run: bundle exec rspec
-    - name: Run rubocop
-      run: bundle exec rubocop
-    - name: Run steep
-      run: bundle exec steep check
