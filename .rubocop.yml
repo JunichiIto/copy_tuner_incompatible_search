@@ -1,0 +1,16 @@
+AllCops:
+  NewCops: enable
+inherit_gem:
+  sgcop: ruby/rubocop.yml
+require:
+  - rubocop-rake
+  - rubocop-rspec
+
+Bundler/GemComment:
+    Enabled: false
+RSpec/DescribedClass:
+  Enabled: false
+RSpec/ReceiveMessages:
+  Enabled: false
+RSpec/NestedGroups:
+  Enabled: false

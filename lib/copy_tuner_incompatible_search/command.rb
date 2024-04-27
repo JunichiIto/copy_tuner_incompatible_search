@@ -10,11 +10,11 @@ module CopyTunerIncompatibleSearch
     end
 
     def run(output_path)
-      puts "Start"
+      puts 'Start'
 
       stdout = detect_html_incompatible_keys
       keys = stdout.lines(chomp: true).map do |line|
-        line.split(".", 2).last
+        line.split('.', 2).last
       end.uniq.sort
       keys = Set[*keys]
 
@@ -25,7 +25,7 @@ module CopyTunerIncompatibleSearch
       count = 0
       keys.each do |key|
         count += 1
-        puts "#{count} / #{keys.count}" if count % 100 == 0
+        puts "#{count} / #{keys.count}" if (count % 100).zero?
 
         result = Result.new(:static, key)
         usage = grep_usage(key).strip
@@ -37,20 +37,20 @@ module CopyTunerIncompatibleSearch
 
       # .で始まる翻訳キー
       grep_result = grep_lazy_keys
-      result = Result.new(:lazy, "")
+      result = Result.new(:lazy, '')
       result.add_usage(grep_result)
       results << result
 
       # 変数を含む翻訳キー
       grep_result = grep_dynamic_keys
-      result = Result.new(:dynamic, "")
+      result = Result.new(:dynamic, '')
       result.add_usage(grep_result)
       results << result
 
       # Excelに出力
       dump_to_xlsx(results, keys, output_path)
 
-      puts "Finish"
+      puts 'Finish'
     end
 
     private
@@ -93,7 +93,7 @@ module CopyTunerIncompatibleSearch
       attr_reader :file, :line, :code, :lazy_key
 
       def initialize(grep_result, lazy_key = nil)
-        file, line, code = grep_result.split(":", 3)
+        file, line, code = grep_result.split(':', 3)
         @file = file
         @line = line
         @code = code.strip
@@ -127,10 +127,10 @@ module CopyTunerIncompatibleSearch
 
     def dump_to_xlsx(results, keys, output_path)
       Axlsx::Package.new do |p|
-        p.workbook.add_worksheet(name: "Data") do |sheet|
+        p.workbook.add_worksheet(name: 'Data') do |sheet|
           monospace_style = sheet.styles.add_style(font_name: 'Courier New', sz: 14)
-          sheet.add_row ["Type", "Key", "Ignored", "File", "Line", "Code"], style: monospace_style
-          sheet.auto_filter = "A1:F1"
+          sheet.add_row %w[Type Key Ignored File Line Code], style: monospace_style
+          sheet.auto_filter = 'A1:F1'
 
           # freeze pane
           sheet.sheet_view.pane do |pane|
@@ -145,21 +145,21 @@ module CopyTunerIncompatibleSearch
             added = false
             result.usages.each do |usage|
               key = if result.lazy?
-                      path = usage.file.sub(/^app\/views\//, '').sub(/\..+$/, '').sub('/_', '/').gsub('/', '.')
+                      path = usage.file.sub(%r{^app/views/}, '').sub(/\..+$/, '').sub('/_', '/').gsub('/', '.')
                       path + usage.lazy_key
                     else
                       result.key
                     end
               already_migrated = usage.file == 'config/initializers/copy_tuner.rb' || usage.code.include?("#{usage.lazy_key || result.key}_html")
-              if (!result.lazy? || keys.include?(key)) && !already_migrated
-                ignored = unless result.dynamic? then ignored_keys.include?(key) ? "Y" : "N" end
-                sheet.add_row [result.type, key, ignored.to_s, usage.file, usage.line, usage.code], style: monospace_style
-                added = true
-              end
+              next unless (!result.lazy? || keys.include?(key)) && !already_migrated
+
+              ignored = unless result.dynamic? then ignored_keys.include?(key) ? 'Y' : 'N' end
+              sheet.add_row [result.type, key, ignored.to_s, usage.file, usage.line, usage.code], style: monospace_style
+              added = true
             end
             if !added && result.static?
-              ignored = ignored_keys.include?(result.key) ? "Y" : "N"
-              sheet.add_row [result.type, result.key, ignored.to_s, "", "", ""], style: monospace_style
+              ignored = ignored_keys.include?(result.key) ? 'Y' : 'N'
+              sheet.add_row [result.type, result.key, ignored.to_s, '', '', ''], style: monospace_style
             end
           end
         end

@@ -3,7 +3,7 @@
 require_relative '../lib/copy_tuner_incompatible_search/command'
 
 project_name = File.basename(Dir.pwd)
-timestamp = Time.now.strftime("%Y%m%d%H%M%S")
+timestamp = Time.now.strftime('%Y%m%d%H%M%S')
 output_path = "tmp/usages-#{project_name}-#{timestamp}.xlsx"
 CopyTunerIncompatibleSearch::Command.run(output_path)
 puts "open #{output_path}"
