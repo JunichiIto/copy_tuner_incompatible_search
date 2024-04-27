@@ -1,11 +1,11 @@
-AllCops:
-  NewCops: enable
-inherit_gem:
-  sgcop: ruby/rubocop.yml
 require:
   - rubocop-rake
   - rubocop-rspec
+inherit_gem:
+  sgcop: ruby/rubocop.yml
 
+AllCops:
+  NewCops: enable
 Bundler/GemComment:
     Enabled: false
 RSpec/DescribedClass:

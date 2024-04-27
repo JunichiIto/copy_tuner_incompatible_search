@@ -45,30 +45,22 @@ module CopyTunerIncompatibleSearch
     def add_result_rows(sheet, result, style)
       added = false
       result.usages.each do |usage|
-        key = build_key(result, usage)
-        next unless should_output?(usage, result, key)
+        unless result.dynamic?
+          full_key = result.full_key_for(usage)
+          next unless should_output?(usage, result, full_key)
 
-        ignored = ignored_flag(key) unless result.dynamic?
-        sheet.add_row [result.type, key, ignored.to_s, usage.file, usage.line, usage.code], style: style
+          ignored = ignored_flag(full_key)
+        end
+        sheet.add_row [result.type, full_key, ignored.to_s, usage.file, usage.line, usage.code], style: style
         added = true
       end
-      if !added && result.static?
+      if result.static? && !added
         sheet.add_row [result.type, result.key, ignored_flag(result.key), '', '', ''], style: style
       end
     end
 
-    def build_key(result, usage)
-      if result.lazy?
-        path = usage.file.sub(%r{^app/views/}, '').sub(/\..+$/, '').sub('/_', '/').gsub('/', '.')
-        path + usage.lazy_key
-      else
-        result.key
-      end
-    end
-
-    def should_output?(usage, result, key)
-      already_migrated = usage.file == 'config/initializers/copy_tuner.rb' || usage.code.include?("#{usage.lazy_key || result.key}_html")
-      (!result.lazy? || incompatible_keys.include?(key)) && !already_migrated
+    def should_output?(usage, result, full_key)
+      incompatible_keys.include?(full_key) && !result.already_migrated?(usage)
     end
 
     def ignored_flag(key)

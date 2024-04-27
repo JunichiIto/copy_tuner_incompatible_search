@@ -54,6 +54,20 @@ module CopyTunerIncompatibleSearch
           end
         end
       end
+
+      def full_key_for(usage)
+        if lazy?
+          path = usage.file.sub(%r{^app/views/}, '').sub(/\..+$/, '').sub('/_', '/').gsub('/', '.')
+          path + usage.lazy_key
+        else
+          key
+        end
+      end
+
+      def already_migrated?(usage)
+        used_key = lazy? ? usage.lazy_key : key
+        usage.initializers? || usage.code.include?("#{used_key}_html")
+      end
     end
 
     class Usage
@@ -65,6 +79,10 @@ module CopyTunerIncompatibleSearch
         @line = line
         @code = code.strip
         @lazy_key = lazy_key
+      end
+
+      def initializers?
+        file == 'config/initializers/copy_tuner.rb'
       end
     end
 
