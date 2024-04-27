@@ -18,30 +18,34 @@ module CopyTunerIncompatibleSearch
       end.uniq.sort
       keys = Set[*keys]
 
+      results = []
+
       # 完全一致する翻訳キー
       puts "Searching #{keys.count} keys"
       count = 0
-      results = {}
       keys.each do |key|
         count += 1
         puts "#{count} / #{keys.count}" if count % 100 == 0
 
-        results[key] ||= Result.new(:static, key)
-        result = grep_usage(key).strip
-        unless result.empty?
-          results[key].add_usage(result)
+        result = Result.new(:static, key)
+        usage = grep_usage(key).strip
+        unless usage.empty?
+          result.add_usage(usage)
         end
+        results << result
       end
 
       # .で始まる翻訳キー
       grep_result = grep_lazy_keys
-      results['lazy'] = Result.new(:lazy, "")
-      results['lazy'].add_usage(grep_result)
+      result = Result.new(:lazy, "")
+      result.add_usage(grep_result)
+      results << result
 
       # 変数を含む翻訳キー
       grep_result = grep_dynamic_keys
-      results['with vars'] = Result.new(:dynamic, "")
-      results['with vars'].add_usage(grep_result)
+      result = Result.new(:dynamic, "")
+      result.add_usage(grep_result)
+      results << result
 
       # Excelに出力
       dump_to_xlsx(results, keys, output_path)
@@ -137,7 +141,7 @@ module CopyTunerIncompatibleSearch
             pane.active_pane = :bottom_right
           end
 
-          results.each do |key, result|
+          results.each do |result|
             added = false
             result.usages.each do |usage|
               key = if result.lazy?
