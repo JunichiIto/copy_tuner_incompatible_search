@@ -1,0 +1,37 @@
+module CopyTunerIncompatibleSearch
+  class XlsxWriter
+    @results: Array[Command::Result]
+
+    @incompatible_keys: Set[String]
+
+    @ignored_keys: Set[String]
+
+    def self.save_to: (Array[Command::Result] results, Set[String] incompatible_keys, Set[String] ignored_keys, String output_path) -> void
+
+    def initialize: (Array[Command::Result] results, Set[String] incompatible_keys, Set[String] ignored_keys) -> void
+
+    def save_to: (String output_path) -> void
+
+    private
+
+    attr_reader results: Array[Command::Result]
+
+    attr_reader incompatible_keys: Set[String]
+
+    attr_reader ignored_keys: Set[String]
+
+    def freeze_pane: (untyped sheet) -> void
+
+    def add_result_rows: (untyped sheet, Command::Result result, untyped style) -> void
+
+    def should_output?: (Command::Usage usage, Command::Result result, String full_key) -> bool
+
+    def ignored_flag: (String key) -> ("Y" | "N")
+  end
+end
+
+module Axlsx
+  class Package
+    def initialize: () { (untyped) -> void }  -> void
+  end
+end

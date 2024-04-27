@@ -1,0 +1,79 @@
+module CopyTunerIncompatibleSearch
+  class Command
+    def self.run: (String output_path) -> void
+
+    def run: (String output_path) -> void
+
+    private
+
+    class Result
+      @type: :dynamic | :static | :lazy
+
+      @key: String
+
+      @usages: Array[Usage]
+
+      attr_reader type: :dynamic | :static | :lazy
+
+      attr_reader key: String
+
+      attr_reader usages: Array[Usage]
+
+      def initialize: (:dynamic | :static | :lazy type, String key) -> void
+
+      def static?: () -> bool
+
+      def lazy?: () -> bool
+
+      def dynamic?: () -> bool
+
+      def add_usage: (String grep_result) -> void
+
+      def full_key_for: (Usage usage) -> String
+
+      def already_migrated?: (Usage usage) -> bool
+    end
+
+    class Usage
+      @file: String
+
+      @line: String
+
+      @code: String
+
+      @lazy_key: String?
+
+      attr_reader file: String
+
+      attr_reader line: String
+
+      attr_reader code: String
+
+      attr_reader lazy_key: String?
+
+      def initialize: (String grep_result, ?String lazy_key) -> void
+
+      def initializers?: () -> bool
+    end
+
+    def search_incompatible_keys: () -> Set[String]
+
+    def search_static_usages: (Set[String] incompatible_keys) -> Array[Result]
+
+    def search_lazy_usages: () -> Result
+
+    def search_dynamic_usages: () -> Result
+
+    def search_ignored_keys: () -> Set[String]
+
+    def detect_html_incompatible_keys: () -> String
+
+    def grep_lazy_keys: () -> String
+
+    def grep_dynamic_keys: () -> String
+
+    def grep_usage: (String key) -> String
+
+    def ignored_keys_text: () -> ::String
+  end
+end

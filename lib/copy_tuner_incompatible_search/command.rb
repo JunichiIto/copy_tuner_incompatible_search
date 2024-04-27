@@ -58,7 +58,7 @@ module CopyTunerIncompatibleSearch
       def full_key_for(usage)
         if lazy?
           path = usage.file.sub(%r{^app/views/}, '').sub(/\..+$/, '').sub('/_', '/').gsub('/', '.')
-          path + usage.lazy_key
+          path + usage.lazy_key.to_s
         else
           key
         end
@@ -77,7 +77,7 @@ module CopyTunerIncompatibleSearch
         file, line, code = grep_result.split(':', 3)
         @file = file
         @line = line
-        @code = code.strip
+        @code = code.to_s.strip
         @lazy_key = lazy_key
       end
 
@@ -89,7 +89,7 @@ module CopyTunerIncompatibleSearch
     def search_incompatible_keys
       stdout = detect_html_incompatible_keys
       keys = stdout.lines(chomp: true).map do |line|
-        line.split('.', 2).last
+        line.split('.', 2).last.to_s
       end.uniq.sort
       Set[*keys]
     end
