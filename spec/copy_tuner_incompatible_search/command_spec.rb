@@ -36,8 +36,8 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when files found' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
-            ja.sample.hello
-            en.sample.hello
+            ja.sample_message.hello_world
+            en.sample_message.hello_world
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return('')
@@ -45,8 +45,8 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
           allow(command).to receive(:grep_dynamic_keys).and_return('')
 
           allow(command).to receive(:grep_usage).and_return(<<~OUTPUT)
-            app/views/home/index.html.erb:5:  <%= t('sample.hello') %>
-            app/views/home/show.html.erb:10:  <p><%= t('sample.hello') %></p>
+            app/views/home/index.html.erb:5:  <%= t('sample_message.hello_world') %>
+            app/views/home/show.html.erb:10:  <p><%= t('sample_message.hello_world') %></p>
           OUTPUT
 
           allow(command).to receive(:ignored_keys_text).and_return('[]')
@@ -55,8 +55,8 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
-            ['static', 'sample.hello', 'N', 'app/views/home/index.html.erb', 5, "<%= t('sample.hello') %>"],
-            ['static', 'sample.hello', 'N', 'app/views/home/show.html.erb', 10, "<p><%= t('sample.hello') %></p>"],
+            ['static', 'sample_message.hello_world', 'N', 'app/views/home/index.html.erb', 5, "<%= t('sample_message.hello_world') %>"],
+            ['static', 'sample_message.hello_world', 'N', 'app/views/home/show.html.erb', 10, "<p><%= t('sample_message.hello_world') %></p>"],
           ]
         end
 
@@ -68,8 +68,8 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when no files found' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
-            ja.sample.hello
-            en.sample.hello
+            ja.sample_message.hello_world
+            en.sample_message.hello_world
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return('')
@@ -84,7 +84,7 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
-            ['static', 'sample.hello', 'N', nil, nil, nil],
+            ['static', 'sample_message.hello_world', 'N', nil, nil, nil],
           ]
         end
 
@@ -96,8 +96,8 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when already migrated' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
-            ja.sample.hello
-            en.sample.hello
+            ja.sample_message.hello_world
+            en.sample_message.hello_world
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return('')
@@ -105,18 +105,18 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
           allow(command).to receive(:grep_dynamic_keys).and_return('')
 
           allow(command).to receive(:grep_usage).and_return(<<~OUTPUT)
-            app/views/home/index.html.erb:5:  <%= t('sample.hello_html') %>
-            app/views/home/show.html.erb:10:  <p><%= t('sample.hello_html') %></p>
-            config/initializers/copy_tuner.rb:20:  'sample.hello',
+            app/views/home/index.html.erb:5:  <%= t('sample_message.hello_world_html') %>
+            app/views/home/show.html.erb:10:  <p><%= t('sample_message.hello_world_html') %></p>
+            config/initializers/copy_tuner.rb:20:  'sample_message.hello_world',
           OUTPUT
 
-          allow(command).to receive(:ignored_keys_text).and_return('["sample.hello"]')
+          allow(command).to receive(:ignored_keys_text).and_return('["sample_message.hello_world"]')
         end
 
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
-            ['static', 'sample.hello', 'Y', nil, nil, nil],
+            ['static', 'sample_message.hello_world', 'Y', nil, nil, nil],
           ]
         end
 
@@ -128,8 +128,8 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when ignored key is used' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
-            ja.sample.hello
-            en.sample.hello
+            ja.sample_message.hello_world
+            en.sample_message.hello_world
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return('')
@@ -137,18 +137,18 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
           allow(command).to receive(:grep_dynamic_keys).and_return('')
 
           allow(command).to receive(:grep_usage).and_return(<<~OUTPUT)
-            app/views/home/index.html.erb:5:  <%= t('sample.hello_html') %>
-            app/views/home/show.html.erb:10:  <p><%= t('sample.hello') %></p>
-            config/initializers/copy_tuner.rb:20:  'sample.hello',
+            app/views/home/index.html.erb:5:  <%= t('sample_message.hello_world_html') %>
+            app/views/home/show.html.erb:10:  <p><%= t('sample_message.hello_world') %></p>
+            config/initializers/copy_tuner.rb:20:  'sample_message.hello_world',
           OUTPUT
 
-          allow(command).to receive(:ignored_keys_text).and_return('["sample.hello"]')
+          allow(command).to receive(:ignored_keys_text).and_return('["sample_message.hello_world"]')
         end
 
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
-            ['static', 'sample.hello', 'Y', 'app/views/home/show.html.erb', 10, "<p><%= t('sample.hello') %></p>"],
+            ['static', 'sample_message.hello_world', 'Y', 'app/views/home/show.html.erb', 10, "<p><%= t('sample_message.hello_world') %></p>"],
           ]
         end
 
@@ -162,12 +162,12 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when lazy key is incompatible' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
-            ja.users.show.description
-            en.users.show.description
+            ja.super_users.show.my_description
+            en.super_users.show.my_description
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return(<<~OUTPUT)
-            app/views/users/show.html.erb:4:  <%= t('.description') %>
+            app/views/super_users/show.html.erb:4:  <%= t('.my_description') %>
           OUTPUT
 
           allow(command).to receive(:grep_dynamic_keys).and_return('')
@@ -180,8 +180,8 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
-            ['static', 'users.show.description', 'N', nil, nil, nil],
-            ['lazy', 'users.show.description', 'N', 'app/views/users/show.html.erb', 4, "<%= t('.description') %>"],
+            ['static', 'super_users.show.my_description', 'N', nil, nil, nil],
+            ['lazy', 'super_users.show.my_description', 'N', 'app/views/super_users/show.html.erb', 4, "<%= t('.my_description') %>"],
           ]
         end
 
@@ -193,14 +193,14 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when several lazy keys exist in a row' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
-            ja.users.show.description
-            ja.users.show.heading
-            en.users.show.description
-            en.users.show.heading
+            ja.super_users.show.my_description
+            ja.super_users.show.heading
+            en.super_users.show.my_description
+            en.super_users.show.heading
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return(<<~OUTPUT)
-            app/views/users/show.html.erb:4:  <%= t('.heading') %><%= t('.description') %>
+            app/views/super_users/show.html.erb:4:  <%= t('.heading') %><%= t('.my_description') %>
           OUTPUT
 
           allow(command).to receive(:grep_dynamic_keys).and_return('')
@@ -213,10 +213,10 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
-            ['static', 'users.show.description', 'N', nil, nil, nil],
-            ['static', 'users.show.heading', 'N', nil, nil, nil],
-            ['lazy', 'users.show.heading', 'N', 'app/views/users/show.html.erb', 4, "<%= t('.heading') %><%= t('.description') %>"],
-            ['lazy', 'users.show.description', 'N', 'app/views/users/show.html.erb', 4, "<%= t('.heading') %><%= t('.description') %>"],
+            ['static', 'super_users.show.heading', 'N', nil, nil, nil],
+            ['static', 'super_users.show.my_description', 'N', nil, nil, nil],
+            ['lazy', 'super_users.show.heading', 'N', 'app/views/super_users/show.html.erb', 4, "<%= t('.heading') %><%= t('.my_description') %>"],
+            ['lazy', 'super_users.show.my_description', 'N', 'app/views/super_users/show.html.erb', 4, "<%= t('.heading') %><%= t('.my_description') %>"],
           ]
         end
 
@@ -228,12 +228,12 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when lazy key exists in a partial view' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
-            ja.users.form.heading
-            en.users.form.heading
+            ja.super_users.my_form.my_heading
+            en.super_users.my_form.my_heading
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return(<<~OUTPUT)
-            app/views/users/_form.html.erb:1:  <%= t('.heading') %>
+            app/views/super_users/_my_form.html.erb:1:  <%= t('.my_heading') %>
           OUTPUT
 
           allow(command).to receive(:grep_dynamic_keys).and_return('')
@@ -246,8 +246,8 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
-            ['static', 'users.form.heading', 'N', nil, nil, nil],
-            ['lazy', 'users.form.heading', 'N', 'app/views/users/_form.html.erb', 1, "<%= t('.heading') %>"],
+            ['static', 'super_users.my_form.my_heading', 'N', nil, nil, nil],
+            ['lazy', 'super_users.my_form.my_heading', 'N', 'app/views/super_users/_my_form.html.erb', 1, "<%= t('.my_heading') %>"],
           ]
         end
 
@@ -259,12 +259,12 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when key does not match file path' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
-            ja.blogs.form.heading
-            en.blogs.form.heading
+            ja.blogs.form.my_heading
+            en.blogs.form.my_heading
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return(<<~OUTPUT)
-            app/views/users/_form.html.erb:1:  <%= t('.heading') %>
+            app/views/super_users/_my_form.html.erb:1:  <%= t('.my_heading') %>
           OUTPUT
 
           allow(command).to receive(:grep_dynamic_keys).and_return('')
@@ -277,7 +277,7 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
-            ['static', 'blogs.form.heading', 'N', nil, nil, nil],
+            ['static', 'blogs.form.my_heading', 'N', nil, nil, nil],
           ]
         end
 
@@ -289,26 +289,26 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when already migrated' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
-            ja.users.show.description
-            en.users.show.description
+            ja.super_users.show.my_description
+            en.super_users.show.my_description
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return(<<~OUTPUT)
-            app/views/users/show.html.erb:4:  <%= t('.description_html') %>
-            config/initializers/copy_tuner.rb:20:  'users.show.description',
+            app/views/super_users/show.html.erb:4:  <%= t('.my_description_html') %>
+            config/initializers/copy_tuner.rb:20:  'super_users.show.my_description',
           OUTPUT
 
           allow(command).to receive(:grep_dynamic_keys).and_return('')
 
           allow(command).to receive(:grep_usage).and_return('')
 
-          allow(command).to receive(:ignored_keys_text).and_return('["users.show.description"]')
+          allow(command).to receive(:ignored_keys_text).and_return('["super_users.show.my_description"]')
         end
 
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
-            ['static', 'users.show.description', 'Y', nil, nil, nil],
+            ['static', 'super_users.show.my_description', 'Y', nil, nil, nil],
           ]
         end
 
@@ -320,27 +320,27 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when ignored key is used' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
-            ja.users.show.description
-            en.users.show.description
+            ja.super_users.show.my_description
+            en.super_users.show.my_description
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return(<<~OUTPUT)
-            app/views/users/show.html.erb:4:  <%= t('.description') %>
-            config/initializers/copy_tuner.rb:20:  'users.show.description',
+            app/views/super_users/show.html.erb:4:  <%= t('.my_description') %>
+            config/initializers/copy_tuner.rb:20:  'super_users.show.my_description',
           OUTPUT
 
           allow(command).to receive(:grep_dynamic_keys).and_return('')
 
           allow(command).to receive(:grep_usage).and_return('')
 
-          allow(command).to receive(:ignored_keys_text).and_return('["users.show.description"]')
+          allow(command).to receive(:ignored_keys_text).and_return('["super_users.show.my_description"]')
         end
 
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
-            ['static', 'users.show.description', 'Y', nil, nil, nil],
-            ['lazy', 'users.show.description', 'Y', 'app/views/users/show.html.erb', 4, "<%= t('.description') %>"],
+            ['static', 'super_users.show.my_description', 'Y', nil, nil, nil],
+            ['lazy', 'super_users.show.my_description', 'Y', 'app/views/super_users/show.html.erb', 4, "<%= t('.my_description') %>"],
           ]
         end
 
@@ -399,7 +399,7 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
 
     context 'when over 100 keys found' do
       before do
-        keys = 1.upto(201).map { |i| "sample.hello_#{i}" }.join("\n")
+        keys = 1.upto(201).map { |i| "sample_message.hello_world_#{i}" }.join("\n")
         allow(command).to receive(:detect_html_incompatible_keys).and_return(keys)
         allow(command).to receive(:grep_lazy_keys).and_return('')
         allow(command).to receive(:grep_dynamic_keys).and_return('')
