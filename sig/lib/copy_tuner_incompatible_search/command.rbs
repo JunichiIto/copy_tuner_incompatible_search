@@ -39,7 +39,7 @@ module CopyTunerIncompatibleSearch
 
       attr_reader lazy_key: String?
 
-      def initialize: (String grep_result, ?String lazy_key) -> void
+      def initialize: (String grep_result, ?String? lazy_key) -> void
 
       def initializers?: () -> bool
     end

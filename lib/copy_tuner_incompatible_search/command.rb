@@ -46,8 +46,8 @@ module CopyTunerIncompatibleSearch
       def add_usage(grep_result)
         grep_result.each_line do |line|
           if lazy?
-            line.scan(/(?<=['"])\.[^'"]+/).each do |lazy_key|
-              @usages << Usage.new(line, lazy_key)
+            line.scan(/(?<=['"])\.[^'"]+/) do |lazy_key|
+              @usages << Usage.new(line, lazy_key.to_s)
             end
           else
             @usages << Usage.new(line)
