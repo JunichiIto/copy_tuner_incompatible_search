@@ -24,7 +24,8 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
     expect(actual_xlsx.to_matrix).to eq Matrix[*expected_matrix]
   end
 
-  before do
+  before(:all) do # rubocop:disable RSpec/BeforeAfterAll
+    FileUtils.rm_rf('tmp')
     FileUtils.mkdir_p('tmp')
   end
 
