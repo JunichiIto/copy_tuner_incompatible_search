@@ -57,7 +57,12 @@ module CopyTunerIncompatibleSearch
 
       def full_key_for(usage)
         if lazy?
-          path = usage.file.sub(%r{^app/views/}, '').sub(/\..+$/, '').sub('/_', '/').gsub('/', '.')
+          path = usage
+                 .file
+                 .sub(%r{^app/views/}, '')
+                 .sub(/\..+$/, '')
+                 .sub('/_', '/')
+                 .gsub('/', '.')
           path + usage.lazy_key.to_s
         else
           key
