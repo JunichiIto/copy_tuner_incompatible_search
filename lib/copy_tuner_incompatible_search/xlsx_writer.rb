@@ -9,8 +9,8 @@ module CopyTunerIncompatibleSearch
     end
 
     def save_to(output_path)
-      Axlsx::Package.new do |p|
-        p.workbook.add_worksheet(name: 'Data') do |sheet|
+      Axlsx::Package.new do |pkg|
+        pkg.workbook.add_worksheet(name: 'Data') do |sheet|
           style = sheet.styles.add_style(font_name: 'Courier New', sz: 14)
           sheet.add_row %w[Type Key Ignored File Line Code], style: style
           sheet.auto_filter = 'A1:F1'
@@ -20,7 +20,7 @@ module CopyTunerIncompatibleSearch
             add_result_rows(sheet, result, style)
           end
         end
-        p.serialize(output_path)
+        pkg.serialize(output_path)
       end
     end
 
