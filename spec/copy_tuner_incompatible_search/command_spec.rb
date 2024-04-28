@@ -289,63 +289,74 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
       context 'when already migrated' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
+            ja.super_users.my_form.my_heading
+            en.super_users.my_form.my_heading
             ja.super_users.show.my_description
             en.super_users.show.my_description
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return(<<~OUTPUT)
+            app/views/super_users/_my_form.html.erb:1:  <%= t('.my_heading_html') %>
             app/views/super_users/show.html.erb:4:  <%= t('.my_description_html') %>
             config/initializers/copy_tuner.rb:20:  'super_users.show.my_description',
+            config/initializers/copy_tuner.rb:21:  'super_users.my_form.my_heading',
           OUTPUT
 
           allow(command).to receive(:grep_dynamic_keys).and_return('')
 
           allow(command).to receive(:grep_usage).and_return('')
 
-          allow(command).to receive(:ignored_keys_text).and_return('["super_users.show.my_description"]')
+          allow(command).to receive(:ignored_keys_text).and_return('["super_users.my_form.my_heading", "super_users.show.my_description"]')
         end
 
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
+            ['static', 'super_users.my_form.my_heading', 'Y', nil, nil, nil],
             ['static', 'super_users.show.my_description', 'Y', nil, nil, nil],
           ]
         end
 
         it 'ignores migrated row' do
-          assert_xlsx_output(command, expected_matrix, 1)
+          assert_xlsx_output(command, expected_matrix, 2)
         end
       end
 
       context 'when ignored key is used' do
         before do
           allow(command).to receive(:detect_html_incompatible_keys).and_return(<<~OUTPUT)
+            ja.super_users.my_form.my_heading
+            en.super_users.my_form.my_heading
             ja.super_users.show.my_description
             en.super_users.show.my_description
           OUTPUT
 
           allow(command).to receive(:grep_lazy_keys).and_return(<<~OUTPUT)
+            app/views/super_users/_my_form.html.erb:1:  <%= t('.my_heading') %>
             app/views/super_users/show.html.erb:4:  <%= t('.my_description') %>
             config/initializers/copy_tuner.rb:20:  'super_users.show.my_description',
+            config/initializers/copy_tuner.rb:21:  'super_users.my_form.my_heading',
           OUTPUT
 
           allow(command).to receive(:grep_dynamic_keys).and_return('')
 
           allow(command).to receive(:grep_usage).and_return('')
 
-          allow(command).to receive(:ignored_keys_text).and_return('["super_users.show.my_description"]')
+          allow(command).to receive(:ignored_keys_text).and_return('["super_users.my_form.my_heading", "super_users.show.my_description"]')
         end
 
         let(:expected_matrix) do
           [
             ['Type', 'Key', 'Ignored', 'File', 'Line', 'Code'],
+            ['static', 'super_users.my_form.my_heading', 'Y', nil, nil, nil],
             ['static', 'super_users.show.my_description', 'Y', nil, nil, nil],
+            ['lazy', 'super_users.my_form.my_heading', 'Y', 'app/views/super_users/_my_form.html.erb', 1, "<%= t('.my_heading') %>"],
             ['lazy', 'super_users.show.my_description', 'Y', 'app/views/super_users/show.html.erb', 4, "<%= t('.my_description') %>"],
           ]
         end
 
         it 'shows used file path' do
-          assert_xlsx_output(command, expected_matrix, 1)
+          assert_xlsx_output(command, expected_matrix, 2)
         end
       end
     end
