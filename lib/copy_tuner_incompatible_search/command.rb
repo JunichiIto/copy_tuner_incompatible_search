@@ -101,9 +101,7 @@ module CopyTunerIncompatibleSearch
 
         result = Result.new(:static, key)
         usage = grep_usage(key).strip
-        unless usage.empty?
-          result.add_usage(usage)
-        end
+        result.add_usage(usage)
         result
       end
     end
