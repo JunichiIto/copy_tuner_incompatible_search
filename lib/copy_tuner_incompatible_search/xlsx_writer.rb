@@ -2,10 +2,6 @@
 
 module CopyTunerIncompatibleSearch
   class XlsxWriter
-    def self.save_to(results, incompatible_keys, ignored_keys, output_path)
-      self.new(results, incompatible_keys, ignored_keys).save_to(output_path)
-    end
-
     def initialize(results, incompatible_keys, ignored_keys)
       @results = results
       @incompatible_keys = incompatible_keys

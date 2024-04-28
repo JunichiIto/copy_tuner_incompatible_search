@@ -1,13 +1,5 @@
 module CopyTunerIncompatibleSearch
   class XlsxWriter
-    @results: Array[Command::Result]
-
-    @incompatible_keys: Set[String]
-
-    @ignored_keys: Set[String]
-
-    def self.save_to: (Array[Command::Result] results, Set[String] incompatible_keys, Set[String] ignored_keys, String output_path) -> void
-
     def initialize: (Array[Command::Result] results, Set[String] incompatible_keys, Set[String] ignored_keys) -> void
 
     def save_to: (String output_path) -> void
