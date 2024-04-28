@@ -1,4 +1,6 @@
 ![](https://github.com/JunichiIto/copy_tuner_incompatible_search/actions/workflows/rspec.yml/badge.svg)
+![](https://github.com/JunichiIto/copy_tuner_incompatible_search/actions/workflows/rubocop.yml/badge.svg)
+![](https://github.com/JunichiIto/copy_tuner_incompatible_search/actions/workflows/steep.yml/badge.svg)
 
 # CopyTunerIncompatibleSearch
 
