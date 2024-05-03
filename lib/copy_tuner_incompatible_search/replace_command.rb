@@ -152,7 +152,7 @@ module CopyTunerIncompatibleSearch
     end
 
     def search_ignored_keys
-      eval(ignored_keys_text)
+      eval(ignored_keys_text) # rubocop:disable Security/Eval
     end
 
     def ignored_keys_text
