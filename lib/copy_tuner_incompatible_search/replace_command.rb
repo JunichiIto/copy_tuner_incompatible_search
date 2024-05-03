@@ -152,9 +152,7 @@ module CopyTunerIncompatibleSearch
       keys_with_special_chars = []
       all_blurb_keys = []
       CSV.parse(blurbs_csv_text, headers: true, quote_char: '"').each do |row|
-        # FIXME: なぜか文字列で指定すると取得できない
-        # row['key']
-        key = row[0]
+        key = row['key']
         all_blurb_keys << key
         translation = row[1]
         if translation.match?(/&#\d+;|&\w+;/) && !key.match?(/[_.]html$/)
