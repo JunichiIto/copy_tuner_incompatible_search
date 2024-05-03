@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/copy_tuner_incompatible_search'
+
+def show_keys(keys)
+  if keys.empty?
+    puts 'なし'
+  else
+    puts keys.uniq.sort
+  end
+  puts
+end
+
+project_name = File.basename(Dir.pwd)
+timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+output_path = "tmp/with-html-suffix-#{project_name}-#{timestamp}.csv"
+usage_path = ARGV[0]
+blurbs_path = ARGV[1]
+if usage_path.nil? || blurbs_path.nil?
+  puts "Please specify file paths: copy_tuner_incompatible_replace <usage_xlsx> <blurbs_csv>"
+  puts "usage_xlsx can be created by copy_tuner_incompatible_search"
+  puts "blurbs_csv can be downloaded from CopyTuner server"
+  exit 1
+end
+result = CopyTunerIncompatibleSearch::ReplaceCommand.run(usage_path, blurbs_path, output_path)
+
+puts "非互換のキーを_html付きのキーに変換したので、#{output_path}をCopyTunerにアップロードする。コードも置換済み"
+show_keys result.newly_replaced_keys
+
+puts '非互換だが、すでに_htmlまたは.htmlつきのキーが存在していたので、コードの置換のみ実行'
+show_keys result.existing_keys
+
+puts '使用箇所を見つけられなかったキー。手動で使用箇所を特定し、手動で_html付きのキーを作成する'
+show_keys result.not_used_incompatible_keys
+
+puts '非互換のキーはconfig.ignored_keysに追加する'
+show_keys result.keys_to_ignore
+
+puts '以下のキーはすでにconfig.ignored_keysに追加済み'
+show_keys result.already_ignored_keys
+
+puts '特殊文字を含むキー。手動で使用箇所を特定し、手動で_html付きのキーを作成する。config.ignored_keys にも追加する'
+show_keys result.keys_with_special_chars
+
+puts '必要な対応が全部終わったら、 config.html_escape = true をセットしてテストを回す'

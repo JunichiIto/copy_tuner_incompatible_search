@@ -3,6 +3,7 @@
 require_relative 'copy_tuner_incompatible_search/version'
 require_relative 'copy_tuner_incompatible_search/command'
 require_relative 'copy_tuner_incompatible_search/xlsx_writer'
+require_relative 'copy_tuner_incompatible_search/replace_command'
 
 module CopyTunerIncompatibleSearch
 end
