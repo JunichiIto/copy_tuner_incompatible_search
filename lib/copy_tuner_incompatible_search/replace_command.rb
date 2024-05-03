@@ -117,9 +117,10 @@ module CopyTunerIncompatibleSearch
     end
 
     class Result
-      attr_reader :newly_replaced_keys, :existing_keys, :not_used_incompatible_keys, :keys_to_ignore, :already_ignored_keys, :keys_with_special_chars, :dynamic_count
+      attr_reader :newly_replaced_keys, :existing_keys, :not_used_incompatible_keys, :keys_to_ignore, :already_ignored_keys, :keys_with_special_chars,
+                  :dynamic_count
 
-      def initialize(newly_replaced_keys, existing_keys, not_used_incompatible_keys, keys_to_ignore, already_ignored_keys, keys_with_special_chars, dynamic_count) # rubocop:disable Metrics/ParameterLists
+      def initialize(newly_replaced_keys, existing_keys, not_used_incompatible_keys, keys_to_ignore, already_ignored_keys, keys_with_special_chars, dynamic_count) # rubocop:disable Metrics/ParameterLists, Layout/LineLength
         @newly_replaced_keys = newly_replaced_keys
         @existing_keys = existing_keys
         @not_used_incompatible_keys = not_used_incompatible_keys

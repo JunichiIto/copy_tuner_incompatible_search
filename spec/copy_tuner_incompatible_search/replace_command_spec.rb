@@ -583,5 +583,89 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
         assert_csv(output_path, expected_csv)
       end
     end
+
+    context '同じキーが複数の箇所で使用されている場合' do
+      let(:blurbs_csv_text) do
+        <<~CSV
+          key,ja,created_at,ja updated_at,ja updater
+          sample.hello,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
+          home.index.hello,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
+        CSV
+      end
+      let(:usage_data) do
+        [
+          { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
+          { type: 'static', key: 'sample.hello', ignored: 'N', file: 'app/views/home/index.html.haml', line: 2 },
+          { type: 'static', key: 'sample.hello', ignored: 'N', file: 'app/views/home/show.html.haml', line: 1 },
+          { type: 'lazy', key: 'home.index.hello', ignored: 'N', file: 'app/views/home/edit.html.haml', line: 1 },
+          { type: 'lazy', key: 'home.index.hello', ignored: 'N', file: 'app/views/home/edit.html.haml', line: 3 },
+        ]
+      end
+
+      before do
+        sheet_mock = double('sheet')
+        allow(sheet_mock).to receive(:each).and_return(usage_data)
+        allow(command).to receive(:usage_sheet).and_return(sheet_mock)
+        allow(command).to receive(:blurbs_csv_text).and_return(blurbs_csv_text)
+        allow(command).to receive(:file_readlines).and_return(<<~HAML1.lines, <<~HAML2.lines, <<~HAML3.lines, <<~HAML4.lines)
+          %h1 Index
+          %p= t('sample.hello')
+          %h2 Contents
+        HAML1
+          %p= t('sample.hello')
+          %h1 Show
+          %h2 Contents
+        HAML2
+          %p= t('.hello')
+          %h1 Edit
+          %p= t('.hello')
+        HAML3
+          %p= t('.hello_html')
+          %h1 Edit
+          %p= t('.hello')
+        HAML4
+        allow(command).to receive(:ignored_keys_text).and_return('[]')
+      end
+
+      it '_htmlに置換される / CSVにも出力される' do
+        expect(command).to receive(:file_write).with('app/views/home/index.html.haml', <<~HAML)
+          %h1 Index
+          %p= t('sample.hello_html')
+          %h2 Contents
+        HAML
+        expect(command).to receive(:file_write).with('app/views/home/show.html.haml', <<~HAML)
+          %p= t('sample.hello_html')
+          %h1 Show
+          %h2 Contents
+        HAML
+        expect(command).to receive(:file_write).with('app/views/home/edit.html.haml', <<~HAML)
+          %p= t('.hello_html')
+          %h1 Edit
+          %p= t('.hello')
+        HAML
+        expect(command).to receive(:file_write).with('app/views/home/edit.html.haml', <<~HAML)
+          %p= t('.hello_html')
+          %h1 Edit
+          %p= t('.hello_html')
+        HAML
+        expect do
+          result = command.run(output_path)
+          expect(result.newly_replaced_keys).to eq ['sample.hello', 'home.index.hello']
+          expect(result.existing_keys).to eq []
+          expect(result.not_used_incompatible_keys).to eq []
+          expect(result.keys_to_ignore).to eq ['sample.hello', 'home.index.hello']
+          expect(result.already_ignored_keys).to eq []
+          expect(result.keys_with_special_chars).to eq []
+          expect(result.dynamic_count).to eq 0
+        end.to change { File.exist?(output_path) }.from(false)
+
+        expected_csv = <<~CSV
+          key,ja,created_at,ja updated_at,ja updater
+          sample.hello_html,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
+          home.index.hello_html,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
+        CSV
+        assert_csv(output_path, expected_csv)
+      end
+    end
   end
 end
