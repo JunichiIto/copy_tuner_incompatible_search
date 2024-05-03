@@ -29,5 +29,7 @@
 # end
 target :lib do
   check 'lib'
+  # すぐにrbsを導入するのは難しそうなのであとまわし
+  ignore 'lib/copy_tuner_incompatible_search/replace_command.rb'
   signature 'sig'
 end
