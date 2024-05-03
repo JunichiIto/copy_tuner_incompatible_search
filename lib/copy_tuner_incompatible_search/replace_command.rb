@@ -73,7 +73,8 @@ module CopyTunerIncompatibleSearch
       existing_keys = keys_for_code_replace - newly_replaced_keys
       already_ignored_keys = search_ignored_keys.uniq
       keys_to_ignore = usages.reject(&:dynamic?).map(&:key).uniq - already_ignored_keys
-      Result.new(newly_replaced_keys, existing_keys, not_used_incompatible_keys, keys_to_ignore, already_ignored_keys, keys_with_special_chars)
+      dynamic_count = usages.count(&:dynamic?)
+      Result.new(newly_replaced_keys, existing_keys, not_used_incompatible_keys, keys_to_ignore, already_ignored_keys, keys_with_special_chars, dynamic_count)
     end
 
     private
@@ -116,15 +117,16 @@ module CopyTunerIncompatibleSearch
     end
 
     class Result
-      attr_reader :newly_replaced_keys, :existing_keys, :not_used_incompatible_keys, :keys_to_ignore, :already_ignored_keys, :keys_with_special_chars
+      attr_reader :newly_replaced_keys, :existing_keys, :not_used_incompatible_keys, :keys_to_ignore, :already_ignored_keys, :keys_with_special_chars, :dynamic_count
 
-      def initialize(newly_replaced_keys, existing_keys, not_used_incompatible_keys, keys_to_ignore, already_ignored_keys, keys_with_special_chars) # rubocop:disable Metrics/ParameterLists
+      def initialize(newly_replaced_keys, existing_keys, not_used_incompatible_keys, keys_to_ignore, already_ignored_keys, keys_with_special_chars, dynamic_count) # rubocop:disable Metrics/ParameterLists
         @newly_replaced_keys = newly_replaced_keys
         @existing_keys = existing_keys
         @not_used_incompatible_keys = not_used_incompatible_keys
         @keys_to_ignore = keys_to_ignore
         @already_ignored_keys = already_ignored_keys
         @keys_with_special_chars = keys_with_special_chars
+        @dynamic_count = dynamic_count
       end
     end
 

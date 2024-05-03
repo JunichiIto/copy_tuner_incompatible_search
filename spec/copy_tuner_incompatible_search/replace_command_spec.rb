@@ -64,6 +64,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
             expect(result.keys_to_ignore).to eq ['sample.hello']
             expect(result.already_ignored_keys).to eq []
             expect(result.keys_with_special_chars).to eq []
+            expect(result.dynamic_count).to eq 0
           end.to change { File.exist?(output_path) }.from(false)
 
           expected_csv = <<~CSV
@@ -116,6 +117,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
             expect(result.keys_to_ignore).to eq ['sample.hello']
             expect(result.already_ignored_keys).to eq []
             expect(result.keys_with_special_chars).to eq []
+            expect(result.dynamic_count).to eq 0
           end.to change { File.exist?(output_path) }.from(false)
 
           expected_csv = <<~CSV
@@ -167,6 +169,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
             expect(result.keys_to_ignore).to eq ['sample.hello']
             expect(result.already_ignored_keys).to eq []
             expect(result.keys_with_special_chars).to eq []
+            expect(result.dynamic_count).to eq 0
           end.to change { File.exist?(output_path) }.from(false)
 
           expected_csv = <<~CSV
@@ -218,11 +221,53 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           expect(result.keys_to_ignore).to eq ['home.index.hello']
           expect(result.already_ignored_keys).to eq []
           expect(result.keys_with_special_chars).to eq []
+          expect(result.dynamic_count).to eq 0
         end.to change { File.exist?(output_path) }.from(false)
 
         expected_csv = <<~CSV
           key,ja,created_at,ja updated_at,ja updater
           home.index.hello_html,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
+        CSV
+        assert_csv(output_path, expected_csv)
+      end
+    end
+
+    context 'dynamicなキーがusages.xlsxに含まれる場合' do
+      let(:blurbs_csv_text) do
+        <<~CSV
+          key,ja,created_at,ja updated_at,ja updater
+          sample.hello,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
+        CSV
+      end
+      let(:usage_data) do
+        [
+          { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
+          { type: 'dynamic', key: nil, ignored: nil, file: 'app/views/home/index.html.haml', line: 2 },
+        ]
+      end
+
+      before do
+        sheet_mock = double('sheet')
+        allow(sheet_mock).to receive(:each).and_return(usage_data)
+        allow(command).to receive(:usage_sheet).and_return(sheet_mock)
+        allow(command).to receive(:blurbs_csv_text).and_return(blurbs_csv_text)
+        allow(command).to receive(:ignored_keys_text).and_return('[]')
+      end
+
+      it '動的なキーの件数がカウントされる' do
+        expect do
+          result = command.run(output_path)
+          expect(result.newly_replaced_keys).to eq []
+          expect(result.existing_keys).to eq []
+          expect(result.not_used_incompatible_keys).to eq []
+          expect(result.keys_to_ignore).to eq []
+          expect(result.already_ignored_keys).to eq []
+          expect(result.keys_with_special_chars).to eq []
+          expect(result.dynamic_count).to eq 1
+        end.to change { File.exist?(output_path) }.from(false)
+
+        expected_csv = <<~CSV
+          key,ja,created_at,ja updated_at,ja updater
         CSV
         assert_csv(output_path, expected_csv)
       end
@@ -260,6 +305,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
             expect(result.keys_to_ignore).to eq []
             expect(result.already_ignored_keys).to eq []
             expect(result.keys_with_special_chars).to eq ['views.pagination.first', 'views.pagination.last']
+            expect(result.dynamic_count).to eq 0
           end.to change { File.exist?(output_path) }.from(false)
 
           expected_csv = <<~CSV
@@ -300,6 +346,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
             expect(result.keys_to_ignore).to eq []
             expect(result.already_ignored_keys).to eq []
             expect(result.keys_with_special_chars).to eq []
+            expect(result.dynamic_count).to eq 0
           end.to change { File.exist?(output_path) }.from(false)
 
           expected_csv = <<~CSV
@@ -341,6 +388,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           expect(result.keys_to_ignore).to eq []
           expect(result.already_ignored_keys).to eq []
           expect(result.keys_with_special_chars).to eq []
+          expect(result.dynamic_count).to eq 0
         end.to change { File.exist?(output_path) }.from(false)
 
         expected_csv = <<~CSV
@@ -381,6 +429,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           expect(result.keys_to_ignore).to eq ['sample.hello']
           expect(result.already_ignored_keys).to eq []
           expect(result.keys_with_special_chars).to eq []
+          expect(result.dynamic_count).to eq 0
         end.to change { File.exist?(output_path) }.from(false)
 
         expected_csv = <<~CSV
@@ -421,6 +470,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           expect(result.keys_to_ignore).to eq []
           expect(result.already_ignored_keys).to eq ['sample.hello']
           expect(result.keys_with_special_chars).to eq []
+          expect(result.dynamic_count).to eq 0
         end.to change { File.exist?(output_path) }.from(false)
 
         expected_csv = <<~CSV

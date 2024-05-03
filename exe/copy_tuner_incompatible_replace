@@ -42,4 +42,5 @@ show_keys result.already_ignored_keys
 puts '特殊文字を含むキー。手動で使用箇所を特定し、手動で_html付きのキーを作成する。config.ignored_keys にも追加する'
 show_keys result.keys_with_special_chars
 
-puts '必要な対応が全部終わったら、 config.html_escape = true をセットしてテストを回す'
+puts '動的なキーが使われている箇所の数。手動で使用箇所を特定し、手動で_html付きのキーを作成する'
+puts result.dynamic_count
