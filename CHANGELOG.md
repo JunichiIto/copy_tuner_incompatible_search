@@ -1,4 +1,6 @@
 ## [Unreleased]
+## [2.0.2] - 2024-05-04
+- Consider BOM in blurbs.csv
 ## [2.0.1] - 2024-05-04
 - Fix false positive git grep result
 ## [2.0.0] - 2024-05-03
