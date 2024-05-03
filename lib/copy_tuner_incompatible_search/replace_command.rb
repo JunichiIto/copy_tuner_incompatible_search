@@ -137,7 +137,7 @@ module CopyTunerIncompatibleSearch
     end
 
     def blurbs_csv_text
-      File.read(blurbs_path)
+      File.read(blurbs_path, encoding: 'bom|utf-8')
     end
 
     def search_ignored_keys
