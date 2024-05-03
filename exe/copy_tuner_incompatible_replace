@@ -17,9 +17,9 @@ output_path = "tmp/with-html-suffix-#{project_name}-#{timestamp}.csv"
 usage_path = ARGV[0]
 blurbs_path = ARGV[1]
 if usage_path.nil? || blurbs_path.nil?
-  puts "Please specify file paths: copy_tuner_incompatible_replace <usage_xlsx> <blurbs_csv>"
-  puts "usage_xlsx can be created by copy_tuner_incompatible_search"
-  puts "blurbs_csv can be downloaded from CopyTuner server"
+  puts 'Please specify file paths: copy_tuner_incompatible_replace <usage_xlsx> <blurbs_csv>'
+  puts 'usage_xlsx can be created by copy_tuner_incompatible_search'
+  puts 'blurbs_csv can be downloaded from CopyTuner server'
   exit 1
 end
 result = CopyTunerIncompatibleSearch::ReplaceCommand.run(usage_path, blurbs_path, output_path)

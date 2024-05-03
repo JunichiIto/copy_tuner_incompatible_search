@@ -25,17 +25,18 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
     context 'staticなキーを置換する場合' do
       context '_htmlや.htmlで終わるキーが定義されていない場合' do
         let(:blurbs_csv_text) do
-          <<~'CSV'
+          <<~CSV
             key,ja,created_at,ja updated_at,ja updater
             sample.hello,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
           CSV
         end
         let(:usage_data) do
           [
-            {:type=>"Type", :key=>"Key", :ignored=>"Ignored", :file=>"File", :line=>"Line"},
-            {:type=>"static", :key=>"sample.hello", :ignored=>"N", :file=>"app/views/home/index.html.haml", :line=>2},
+            { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
+            { type: 'static', key: 'sample.hello', ignored: 'N', file: 'app/views/home/index.html.haml', line: 2 },
           ]
         end
+
         before do
           sheet_mock = double('sheet')
           allow(sheet_mock).to receive(:each).and_return(usage_data)
@@ -57,15 +58,15 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           HAML
           expect do
             result = command.run(output_path)
-            expect(result.newly_replaced_keys).to eq ["sample.hello"]
+            expect(result.newly_replaced_keys).to eq ['sample.hello']
             expect(result.existing_keys).to eq []
             expect(result.not_used_incompatible_keys).to eq []
-            expect(result.keys_to_ignore).to eq ["sample.hello"]
+            expect(result.keys_to_ignore).to eq ['sample.hello']
             expect(result.already_ignored_keys).to eq []
             expect(result.keys_with_special_chars).to eq []
           end.to change { File.exist?(output_path) }.from(false)
 
-          expected_csv = <<~'CSV'
+          expected_csv = <<~CSV
             key,ja,created_at,ja updated_at,ja updater
             sample.hello_html,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
           CSV
@@ -75,7 +76,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
 
       context '_htmlで終わるキーが定義されている場合' do
         let(:blurbs_csv_text) do
-          <<~'CSV'
+          <<~CSV
             key,ja,created_at,ja updated_at,ja updater
             sample.hello,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
             sample.hello_html,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
@@ -83,10 +84,11 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
         end
         let(:usage_data) do
           [
-            {:type=>"Type", :key=>"Key", :ignored=>"Ignored", :file=>"File", :line=>"Line"},
-            {:type=>"static", :key=>"sample.hello", :ignored=>"N", :file=>"app/views/home/index.html.haml", :line=>2},
+            { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
+            { type: 'static', key: 'sample.hello', ignored: 'N', file: 'app/views/home/index.html.haml', line: 2 },
           ]
         end
+
         before do
           sheet_mock = double('sheet')
           allow(sheet_mock).to receive(:each).and_return(usage_data)
@@ -109,23 +111,23 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           expect do
             result = command.run(output_path)
             expect(result.newly_replaced_keys).to eq []
-            expect(result.existing_keys).to eq ["sample.hello"]
+            expect(result.existing_keys).to eq ['sample.hello']
             expect(result.not_used_incompatible_keys).to eq []
-            expect(result.keys_to_ignore).to eq ["sample.hello"]
+            expect(result.keys_to_ignore).to eq ['sample.hello']
             expect(result.already_ignored_keys).to eq []
             expect(result.keys_with_special_chars).to eq []
           end.to change { File.exist?(output_path) }.from(false)
 
-          expected_csv = <<~'CSV'
+          expected_csv = <<~CSV
             key,ja,created_at,ja updated_at,ja updater
           CSV
           assert_csv(output_path, expected_csv)
         end
       end
 
-      context '.htmlで終わるキーが定義されている場合' do
+      describe '.htmlで終わるキーが定義されている場合' do
         let(:blurbs_csv_text) do
-          <<~'CSV'
+          <<~CSV
             key,ja,created_at,ja updated_at,ja updater
             sample.hello,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
             sample.hello.html,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
@@ -133,10 +135,11 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
         end
         let(:usage_data) do
           [
-            {:type=>"Type", :key=>"Key", :ignored=>"Ignored", :file=>"File", :line=>"Line"},
-            {:type=>"static", :key=>"sample.hello", :ignored=>"N", :file=>"app/views/home/index.html.haml", :line=>2},
+            { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
+            { type: 'static', key: 'sample.hello', ignored: 'N', file: 'app/views/home/index.html.haml', line: 2 },
           ]
         end
+
         before do
           sheet_mock = double('sheet')
           allow(sheet_mock).to receive(:each).and_return(usage_data)
@@ -159,14 +162,14 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           expect do
             result = command.run(output_path)
             expect(result.newly_replaced_keys).to eq []
-            expect(result.existing_keys).to eq ["sample.hello"]
+            expect(result.existing_keys).to eq ['sample.hello']
             expect(result.not_used_incompatible_keys).to eq []
-            expect(result.keys_to_ignore).to eq ["sample.hello"]
+            expect(result.keys_to_ignore).to eq ['sample.hello']
             expect(result.already_ignored_keys).to eq []
             expect(result.keys_with_special_chars).to eq []
           end.to change { File.exist?(output_path) }.from(false)
 
-          expected_csv = <<~'CSV'
+          expected_csv = <<~CSV
             key,ja,created_at,ja updated_at,ja updater
           CSV
           assert_csv(output_path, expected_csv)
@@ -176,17 +179,18 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
 
     context 'lazyなキーを置換する場合' do
       let(:blurbs_csv_text) do
-        <<~'CSV'
+        <<~CSV
           key,ja,created_at,ja updated_at,ja updater
           home.index.hello,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
         CSV
       end
       let(:usage_data) do
         [
-          {:type=>"Type", :key=>"Key", :ignored=>"Ignored", :file=>"File", :line=>"Line"},
-          {:type=>"lazy", :key=>"home.index.hello", :ignored=>"N", :file=>"app/views/home/index.html.haml", :line=>2},
+          { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
+          { type: 'lazy', key: 'home.index.hello', ignored: 'N', file: 'app/views/home/index.html.haml', line: 2 },
         ]
       end
+
       before do
         sheet_mock = double('sheet')
         allow(sheet_mock).to receive(:each).and_return(usage_data)
@@ -208,15 +212,15 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
         HAML
         expect do
           result = command.run(output_path)
-          expect(result.newly_replaced_keys).to eq ["home.index.hello"]
+          expect(result.newly_replaced_keys).to eq ['home.index.hello']
           expect(result.existing_keys).to eq []
           expect(result.not_used_incompatible_keys).to eq []
-          expect(result.keys_to_ignore).to eq ["home.index.hello"]
+          expect(result.keys_to_ignore).to eq ['home.index.hello']
           expect(result.already_ignored_keys).to eq []
           expect(result.keys_with_special_chars).to eq []
         end.to change { File.exist?(output_path) }.from(false)
 
-        expected_csv = <<~'CSV'
+        expected_csv = <<~CSV
           key,ja,created_at,ja updated_at,ja updater
           home.index.hello_html,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
         CSV
@@ -227,7 +231,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
     context '翻訳に特殊文字が含まれる場合' do
       context '_htmlや.htmlで終わらない場合' do
         let(:blurbs_csv_text) do
-          <<~'CSV'
+          <<~CSV
             key,ja,created_at,ja updated_at,ja updater
             views.pagination.first,"&laquo; 先頭",2013/05/28 10:51:09,2013/05/28 10:51:11,
             views.pagination.last,"最後 &#187;",2013/05/28 10:51:09,2013/05/28 10:51:11,
@@ -235,9 +239,10 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
         end
         let(:usage_data) do
           [
-            {:type=>"Type", :key=>"Key", :ignored=>"Ignored", :file=>"File", :line=>"Line"},
+            { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
           ]
         end
+
         before do
           sheet_mock = double('sheet')
           allow(sheet_mock).to receive(:each).and_return(usage_data)
@@ -257,7 +262,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
             expect(result.keys_with_special_chars).to eq ['views.pagination.first', 'views.pagination.last']
           end.to change { File.exist?(output_path) }.from(false)
 
-          expected_csv = <<~'CSV'
+          expected_csv = <<~CSV
             key,ja,created_at,ja updated_at,ja updater
           CSV
           assert_csv(output_path, expected_csv)
@@ -266,7 +271,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
 
       context '_htmlや.htmlで終わる場合' do
         let(:blurbs_csv_text) do
-          <<~'CSV'
+          <<~CSV
             key,ja,created_at,ja updated_at,ja updater
             views.pagination.first_html,"&laquo; 先頭",2013/05/28 10:51:09,2013/05/28 10:51:11,
             views.pagination.last.html,"最後 &#187;",2013/05/28 10:51:09,2013/05/28 10:51:11,
@@ -274,9 +279,10 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
         end
         let(:usage_data) do
           [
-            {:type=>"Type", :key=>"Key", :ignored=>"Ignored", :file=>"File", :line=>"Line"},
+            { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
           ]
         end
+
         before do
           sheet_mock = double('sheet')
           allow(sheet_mock).to receive(:each).and_return(usage_data)
@@ -296,7 +302,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
             expect(result.keys_with_special_chars).to eq []
           end.to change { File.exist?(output_path) }.from(false)
 
-          expected_csv = <<~'CSV'
+          expected_csv = <<~CSV
             key,ja,created_at,ja updated_at,ja updater
           CSV
           assert_csv(output_path, expected_csv)
@@ -306,7 +312,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
 
     context 'blurbsのキーに問題がない場合' do
       let(:blurbs_csv_text) do
-        <<~'CSV'
+        <<~CSV
           key,ja,created_at,ja updated_at,ja updater
           sample.hello_html,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
           sample.bye,"Bye, world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
@@ -314,9 +320,10 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
       end
       let(:usage_data) do
         [
-          {:type=>"Type", :key=>"Key", :ignored=>"Ignored", :file=>"File", :line=>"Line"},
+          { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
         ]
       end
+
       before do
         sheet_mock = double('sheet')
         allow(sheet_mock).to receive(:each).and_return(usage_data)
@@ -336,7 +343,7 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           expect(result.keys_with_special_chars).to eq []
         end.to change { File.exist?(output_path) }.from(false)
 
-        expected_csv = <<~'CSV'
+        expected_csv = <<~CSV
           key,ja,created_at,ja updated_at,ja updater
         CSV
         assert_csv(output_path, expected_csv)
@@ -345,17 +352,18 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
 
     context 'staticだが、使用箇所が見つからない場合' do
       let(:blurbs_csv_text) do
-        <<~'CSV'
+        <<~CSV
           key,ja,created_at,ja updated_at,ja updater
           sample.hello,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
         CSV
       end
       let(:usage_data) do
         [
-          {:type=>"Type", :key=>"Key", :ignored=>"Ignored", :file=>"File", :line=>"Line"},
-          {:type=>"static", :key=>"sample.hello", :ignored=>"N", :file=>nil, :line=>nil},
+          { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
+          { type: 'static', key: 'sample.hello', ignored: 'N', file: nil, line: nil },
         ]
       end
+
       before do
         sheet_mock = double('sheet')
         allow(sheet_mock).to receive(:each).and_return(usage_data)
@@ -369,13 +377,13 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           result = command.run(output_path)
           expect(result.newly_replaced_keys).to eq []
           expect(result.existing_keys).to eq []
-          expect(result.not_used_incompatible_keys).to eq ["sample.hello"]
-          expect(result.keys_to_ignore).to eq ["sample.hello"]
+          expect(result.not_used_incompatible_keys).to eq ['sample.hello']
+          expect(result.keys_to_ignore).to eq ['sample.hello']
           expect(result.already_ignored_keys).to eq []
           expect(result.keys_with_special_chars).to eq []
         end.to change { File.exist?(output_path) }.from(false)
 
-        expected_csv = <<~'CSV'
+        expected_csv = <<~CSV
           key,ja,created_at,ja updated_at,ja updater
         CSV
         assert_csv(output_path, expected_csv)
@@ -384,17 +392,18 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
 
     context 'すでにignored_keysに追加されている場合' do
       let(:blurbs_csv_text) do
-        <<~'CSV'
+        <<~CSV
           key,ja,created_at,ja updated_at,ja updater
           sample.hello,"Hello,<br/>world!",2013/05/28 10:51:09,2013/05/28 10:51:11,
         CSV
       end
       let(:usage_data) do
         [
-          {:type=>"Type", :key=>"Key", :ignored=>"Ignored", :file=>"File", :line=>"Line"},
-          {:type=>"static", :key=>"sample.hello", :ignored=>"N", :file=>nil, :line=>nil},
+          { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
+          { type: 'static', key: 'sample.hello', ignored: 'N', file: nil, line: nil },
         ]
       end
+
       before do
         sheet_mock = double('sheet')
         allow(sheet_mock).to receive(:each).and_return(usage_data)
@@ -408,13 +417,13 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           result = command.run(output_path)
           expect(result.newly_replaced_keys).to eq []
           expect(result.existing_keys).to eq []
-          expect(result.not_used_incompatible_keys).to eq ["sample.hello"]
+          expect(result.not_used_incompatible_keys).to eq ['sample.hello']
           expect(result.keys_to_ignore).to eq []
-          expect(result.already_ignored_keys).to eq ["sample.hello"]
+          expect(result.already_ignored_keys).to eq ['sample.hello']
           expect(result.keys_with_special_chars).to eq []
         end.to change { File.exist?(output_path) }.from(false)
 
-        expected_csv = <<~'CSV'
+        expected_csv = <<~CSV
           key,ja,created_at,ja updated_at,ja updater
         CSV
         assert_csv(output_path, expected_csv)
