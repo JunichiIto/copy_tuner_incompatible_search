@@ -67,8 +67,8 @@ module CopyTunerIncompatibleSearch
         end
       end
 
-      replace_code_for_static_usages(static_usages_by_key, keys_for_code_replace, all_blurb_keys)
-      replace_code_for_lazy_usages(lazy_usages_by_key, keys_for_code_replace, all_blurb_keys)
+      replace_code_for_static_usages(static_usages_by_key, keys_for_code_replace, underscore_converted_keys, dot_converted_keys)
+      replace_code_for_lazy_usages(lazy_usages_by_key, keys_for_code_replace, underscore_converted_keys, dot_converted_keys)
 
       existing_keys = keys_for_code_replace - newly_replaced_keys
       already_ignored_keys = search_ignored_keys.uniq
@@ -161,27 +161,27 @@ module CopyTunerIncompatibleSearch
       [Set[*all_blurb_keys], keys_with_special_chars]
     end
 
-    def replace_code_for_lazy_usages(lazy_usages_by_key, keys_for_code_replace, all_blurb_keys)
+    def replace_code_for_lazy_usages(lazy_usages_by_key, keys_for_code_replace, underscore_converted_keys, dot_converted_keys)
       lazy_usages_by_key.each do |key, usages|
         next unless keys_for_code_replace.include?(key)
 
         usages.each do |usage|
-          replace_code(usage, all_blurb_keys)
+          replace_code(usage, underscore_converted_keys, dot_converted_keys)
         end
       end
     end
 
-    def replace_code_for_static_usages(static_usages_by_key, keys_for_code_replace, all_blurb_keys)
+    def replace_code_for_static_usages(static_usages_by_key, keys_for_code_replace, underscore_converted_keys, dot_converted_keys)
       static_usages_by_key.each do |key, usages|
         next unless keys_for_code_replace.include?(key)
 
         usages.each do |usage|
-          replace_code(usage, all_blurb_keys)
+          replace_code(usage, underscore_converted_keys, dot_converted_keys)
         end
       end
     end
 
-    def replace_code(usage, all_blurb_keys)
+    def replace_code(usage, underscore_converted_keys, dot_converted_keys)
       lines = file_readlines(usage.file)
       if usage.lazy?
         lazy_key = usage.lazy_key
@@ -189,7 +189,7 @@ module CopyTunerIncompatibleSearch
       else
         regex = /(?<=['"])#{Regexp.escape(usage.key)}(?=['"])/
       end
-      new_key = generate_html_key(usage, all_blurb_keys)
+      new_key = generate_html_key(usage, underscore_converted_keys, dot_converted_keys)
       lines[usage.line - 1].gsub!(regex, new_key)
       file_write(usage.file, lines.join)
     end
@@ -203,10 +203,9 @@ module CopyTunerIncompatibleSearch
     end
 
     # すでに_htmlまたは.htmlのキーが存在していればそのキーを、そうでなければ_html付きのキーを返す
-    def generate_html_key(usage, all_blurb_keys)
-      # TODO: dot_converted_keysとunderscore_converted_keysに置き換えたい
-      has_underscore = all_blurb_keys.include?("#{usage.key}_html")
-      has_dot = all_blurb_keys.include?("#{usage.key}.html")
+    def generate_html_key(usage, underscore_converted_keys, dot_converted_keys)
+      has_underscore = underscore_converted_keys.include?(usage.key)
+      has_dot = dot_converted_keys.include?(usage.key)
       none = !has_underscore && !has_dot
       key = usage.lazy? ? usage.lazy_key : usage.key
       has_underscore || none ? "#{key}_html" : "#{key}.html"
