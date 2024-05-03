@@ -142,7 +142,7 @@ module CopyTunerIncompatibleSearch
     end
 
     def grep_usage(key)
-      `git grep -n "#{Regexp.escape(key)}"`
+      `git grep -n "['\\"]#{Regexp.escape(key)}['\\"]"`
     end
 
     def ignored_keys_text
