@@ -18,10 +18,10 @@ module CopyTunerIncompatibleSearch
 
     def run(output_path) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       # usages.xlsxから生成したUsageオブジェクトの配列
-      usages = usage_sheet.each(type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line').filter_map.with_index do |hash, i|
+      usages = usage_sheet.each(type: 'Type', key: 'Key', file: 'File', line: 'Line').filter_map.with_index do |hash, i|
         next if i.zero? # skip header
 
-        Usage.new(**hash)
+        Usage.new(type: hash[:type], key: hash[:key], file: hash[:file], line: hash[:line])
       end
       # プロジェクト内で後方互換性のないキーの集合
       incompatible_keys = Set[*usages.select(&:static?).map(&:key)]
@@ -53,7 +53,7 @@ module CopyTunerIncompatibleSearch
           if i.zero?
             csv_out << row.headers
           end
-          key = row[0]
+          key = row['key']
           converted_key = "#{key}_html"
           if keys_to_convert.include?(key) && !dot_converted_keys.include?(key) && !underscore_converted_keys.include?(key)
             csv_out << [converted_key, *row[1..]]
@@ -82,14 +82,13 @@ module CopyTunerIncompatibleSearch
     attr_reader :usage_path, :blurbs_path
 
     class Usage
-      attr_reader :type, :key, :file, :line
+      attr_reader :type, :key, :file
 
-      def initialize(type:, key:, ignored:, file:, line:)
+      def initialize(type:, key:, file:, line:)
         @type = type
-        @key = key
-        @ignored = ignored
-        @file = file
-        @line = line.to_s.empty? ? nil : line.to_i
+        @key = key.to_s
+        @file = file.to_s
+        @line = line.to_s
       end
 
       def static?
@@ -113,6 +112,12 @@ module CopyTunerIncompatibleSearch
 
         last_key = key.split('.').last
         ".#{last_key}"
+      end
+
+      def line
+        raise 'line is not set' if @line.empty?
+
+        @line.to_i
       end
     end
 
@@ -154,7 +159,7 @@ module CopyTunerIncompatibleSearch
       CSV.parse(blurbs_csv_text, headers: true, quote_char: '"').each do |row|
         key = row['key']
         all_blurb_keys << key
-        translation = row[1]
+        translation = row[1] # 使用する言語によって列名が変わるのでindexを指定する
         if translation.match?(/&#\d+;|&\w+;/) && !key.match?(/[_.]html$/)
           keys_with_special_chars << key
         end
@@ -186,7 +191,7 @@ module CopyTunerIncompatibleSearch
       lines = file_readlines(usage.file)
       if usage.lazy?
         lazy_key = usage.lazy_key
-        regex = /(?<=['"])#{Regexp.escape(lazy_key)}(?=['"])/
+        regex = /(?<=['"])#{Regexp.escape(lazy_key.to_s)}(?=['"])/
       else
         regex = /(?<=['"])#{Regexp.escape(usage.key)}(?=['"])/
       end

@@ -1,0 +1,100 @@
+module CopyTunerIncompatibleSearch
+  class ReplaceCommand
+    def self.run: (String usage_path, String blurbs_path, String output_path) -> void
+
+    def initialize: (String usage_path, String blurbs_path) -> void
+
+    def run: (String output_path) -> Result
+
+    private
+
+    attr_reader usage_path: String
+
+    attr_reader blurbs_path: String
+
+    class Usage
+      @line: String
+
+      type usage_type = 'dynamic' | 'static' | 'lazy'
+
+      attr_reader type: usage_type
+
+      attr_reader key: String
+
+      attr_reader file: String
+
+      def initialize: (type: usage_type, key: String?, file: String?, line: String?) -> void
+
+      def static?: () -> bool
+
+      def lazy?: () -> bool
+
+      def dynamic?: () -> bool
+
+      def used?: () -> bool
+
+      def lazy_key: () -> (nil | String)
+
+      def line: () -> Integer
+    end
+
+    class Result
+      attr_reader newly_replaced_keys: Array[String]
+
+      attr_reader existing_keys: Array[String]
+
+      attr_reader not_used_incompatible_keys: Array[String]
+
+      attr_reader keys_to_ignore: Array[String]
+
+      attr_reader already_ignored_keys: Array[String]
+
+      attr_reader keys_with_special_chars: Array[String]
+
+      attr_reader dynamic_count: Integer
+
+      def initialize: (Array[String] newly_replaced_keys, Array[String] existing_keys, Array[String] not_used_incompatible_keys, Array[String] keys_to_ignore, Array[String] already_ignored_keys, Array[String] keys_with_special_chars, Integer dynamic_count) -> void
+    end
+
+    def usage_sheet: () -> untyped
+
+    def blurbs_csv_text: () -> String
+
+    def search_ignored_keys: () -> Array[String]
+
+    def ignored_keys_text: () -> String
+
+    def parse_blurbs_csv: () -> [Set[String], Array[String]]
+
+    def replace_code_for_lazy_usages: (Hash[String, Array[Usage]] lazy_usages_by_key, Array[String] keys_for_code_replace, Set[String] underscore_converted_keys, Set[String] dot_converted_keys) -> void
+
+    def replace_code_for_static_usages: (Hash[String, Array[Usage]] static_usages_by_key, Array[String] keys_for_code_replace, Set[String] underscore_converted_keys, Set[String] dot_converted_keys) -> void
+
+    def replace_code: (Usage usage, Set[String] underscore_converted_keys, Set[String] dot_converted_keys) -> void
+
+    def file_readlines: (String path) -> Array[String]
+
+    def file_write: (String path, String text) -> void
+
+    def generate_html_key: (Usage usage, Set[String] underscore_converted_keys, Set[String] dot_converted_keys) -> String
+  end
+end
+
+module Roo
+  class Spreadsheet
+    def self.open: (String path) -> untyped
+  end
+end
+
+# 公式のrbsファイルだとなぜかエラーが出てsteep checkがパスしないので、自前で定義している
+class CSV
+  def self.parse: (String str, ?::Hash[Symbol, untyped] options) -> Array[CSV::Row]
+  def self.open: (String path, String mode) { (CSV csv) -> void } -> void
+  def <<: (Array[untyped] row) -> void
+  class Row
+    def []: (String key) -> String
+          | (Integer index) -> String
+          | (range[Integer] range) -> Array[String]
+    def headers: () -> Array[String]
+  end
+end
