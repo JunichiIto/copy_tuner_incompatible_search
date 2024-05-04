@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'copy_tuner_incompatible_search/version'
-require_relative 'copy_tuner_incompatible_search/command'
+require_relative 'copy_tuner_incompatible_search/search_command'
 require_relative 'copy_tuner_incompatible_search/xlsx_writer'
 require_relative 'copy_tuner_incompatible_search/replace_command'
 

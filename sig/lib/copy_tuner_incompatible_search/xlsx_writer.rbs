@@ -1,12 +1,12 @@
 module CopyTunerIncompatibleSearch
   class XlsxWriter
-    def initialize: (Array[Command::Result] results, Set[String] incompatible_keys, Set[String] ignored_keys) -> void
+    def initialize: (Array[SearchCommand::Result] results, Set[String] incompatible_keys, Set[String] ignored_keys) -> void
 
     def save_to: (String output_path) -> void
 
     private
 
-    attr_reader results: Array[Command::Result]
+    attr_reader results: Array[SearchCommand::Result]
 
     attr_reader incompatible_keys: Set[String]
 
@@ -14,9 +14,9 @@ module CopyTunerIncompatibleSearch
 
     def freeze_pane: (untyped sheet) -> void
 
-    def add_result_rows: (untyped sheet, Command::Result result, untyped style) -> void
+    def add_result_rows: (untyped sheet, SearchCommand::Result result, untyped style) -> void
 
-    def should_output?: (Command::Usage usage, Command::Result result, String full_key) -> bool
+    def should_output?: (SearchCommand::Usage usage, SearchCommand::Result result, String full_key) -> bool
 
     def ignored_flag: (String key) -> ("Y" | "N")
   end

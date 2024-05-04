@@ -1,5 +1,5 @@
 module CopyTunerIncompatibleSearch
-  class Command
+  class SearchCommand
     def self.run: (String output_path) -> void
 
     def run: (String output_path) -> void

@@ -4,7 +4,7 @@ require 'matrix'
 require 'roo'
 require 'securerandom'
 
-RSpec.describe CopyTunerIncompatibleSearch::Command do
+RSpec.describe CopyTunerIncompatibleSearch::SearchCommand do
   def generate_output_path
     "tmp/usages-#{SecureRandom.hex(10)}.xlsx"
   end
@@ -30,7 +30,7 @@ RSpec.describe CopyTunerIncompatibleSearch::Command do
   end
 
   describe '.run' do
-    let(:command) { CopyTunerIncompatibleSearch::Command.new }
+    let(:command) { CopyTunerIncompatibleSearch::SearchCommand.new }
 
     describe 'type=static' do
       context 'when files found' do

@@ -4,7 +4,7 @@ require 'axlsx'
 require 'set'
 
 module CopyTunerIncompatibleSearch
-  class Command
+  class SearchCommand
     def self.run(output_path)
       self.new.run(output_path)
     end
