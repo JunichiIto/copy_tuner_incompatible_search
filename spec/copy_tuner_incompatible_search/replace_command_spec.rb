@@ -459,6 +459,48 @@ RSpec.describe CopyTunerIncompatibleSearch::ReplaceCommand, :aggregate_failures 
           assert_csv(output_path, expected_csv)
         end
       end
+
+      context '_htmlや.htmlで終わらない場合、かつ言語が複数ある場合' do
+        let(:blurbs_csv_text) do
+          # enとjaがあり、jaに特殊文字が含まれる
+          <<~CSV
+            key,en,ja,created_at,en updated_at,en updater,ja updated_at,ja updater
+            views.pagination.first,,"&laquo; 先頭",2013/05/28 10:51:09,2013/05/28 10:51:11,
+            views.pagination.last,,"最後 &#187;",2013/05/28 10:51:09,2013/05/28 10:51:11,
+          CSV
+        end
+        let(:usage_data) do
+          [
+            { type: 'Type', key: 'Key', ignored: 'Ignored', file: 'File', line: 'Line' },
+          ]
+        end
+
+        before do
+          sheet_mock = double('sheet')
+          allow(sheet_mock).to receive(:each).and_return(usage_data)
+          allow(command).to receive(:usage_sheet).and_return(sheet_mock)
+          allow(command).to receive(:blurbs_csv_text).and_return(blurbs_csv_text)
+          allow(command).to receive(:ignored_keys_text).and_return('[]')
+        end
+
+        it 'keys_with_special_chars に追加される' do
+          expect do
+            result = command.run(output_path)
+            expect(result.newly_replaced_keys).to eq []
+            expect(result.existing_keys).to eq []
+            expect(result.not_used_incompatible_keys).to eq []
+            expect(result.keys_to_ignore).to eq []
+            expect(result.already_ignored_keys).to eq []
+            expect(result.keys_with_special_chars).to eq ['views.pagination.first', 'views.pagination.last']
+            expect(result.dynamic_count).to eq 0
+          end.to change { File.exist?(output_path) }.from(false)
+
+          expected_csv = <<~CSV
+            key,en,ja,created_at,en updated_at,en updater,ja updated_at,ja updater
+          CSV
+          assert_csv(output_path, expected_csv)
+        end
+      end
     end
 
     context 'blurbsのキーに問題がない場合' do

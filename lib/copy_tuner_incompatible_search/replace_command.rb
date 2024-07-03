@@ -159,12 +159,19 @@ module CopyTunerIncompatibleSearch
       CSV.parse(blurbs_csv_text, headers: true, quote_char: '"').each do |row|
         key = row['key']
         all_blurb_keys << key
-        translation = row[1].to_s # 使用する言語によって列名が変わるのでindexを指定する
+        tr_range = detect_translation_range(row)
+        translation = row[tr_range].join(' ')
         if translation.match?(/&#\d+;|&\w+;/) && !key.match?(/[_.]html$/)
           keys_with_special_chars << key
         end
       end
       [Set[*all_blurb_keys], keys_with_special_chars]
+    end
+
+    def detect_translation_range(row)
+      start = 1
+      finish = row.to_h.keys.index('created_at') - 1
+      start..finish
     end
 
     def replace_code_for_lazy_usages(lazy_usages_by_key, keys_for_code_replace, underscore_converted_keys, dot_converted_keys)
