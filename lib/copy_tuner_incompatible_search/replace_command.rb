@@ -170,7 +170,7 @@ module CopyTunerIncompatibleSearch
 
     def detect_translation_range(row)
       start = 1
-      finish = row.to_h.keys.index('created_at') - 1
+      finish = row.to_h.keys.index('created_at').to_i - 1
       start..finish
     end
 

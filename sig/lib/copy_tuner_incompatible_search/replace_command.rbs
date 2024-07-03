@@ -66,6 +66,8 @@ module CopyTunerIncompatibleSearch
 
     def parse_blurbs_csv: () -> [Set[String], Array[String]]
 
+    def detect_translation_range: (CSV::Row) -> Range[Integer]
+
     def replace_code_for_lazy_usages: (Hash[String, Array[Usage]] lazy_usages_by_key, Array[String] keys_for_code_replace, Set[String] underscore_converted_keys, Set[String] dot_converted_keys) -> void
 
     def replace_code_for_static_usages: (Hash[String, Array[Usage]] static_usages_by_key, Array[String] keys_for_code_replace, Set[String] underscore_converted_keys, Set[String] dot_converted_keys) -> void
@@ -96,5 +98,6 @@ class CSV
           | (Integer index) -> String
           | (range[Integer] range) -> Array[String]
     def headers: () -> Array[String]
+    def to_h: () -> ::Hash[String, String]
   end
 end
