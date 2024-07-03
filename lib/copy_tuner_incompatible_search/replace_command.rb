@@ -159,7 +159,7 @@ module CopyTunerIncompatibleSearch
       CSV.parse(blurbs_csv_text, headers: true, quote_char: '"').each do |row|
         key = row['key']
         all_blurb_keys << key
-        translation = row[1] # 使用する言語によって列名が変わるのでindexを指定する
+        translation = row[1].to_s # 使用する言語によって列名が変わるのでindexを指定する
         if translation.match?(/&#\d+;|&\w+;/) && !key.match?(/[_.]html$/)
           keys_with_special_chars << key
         end
